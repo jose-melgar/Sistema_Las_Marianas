@@ -1,0 +1,121 @@
+# ======================================================================
+# CONFIGURACIÓN CENTRAL DEL LOADER DE DATOS
+# Define la estructura, hojas, columnas y reglas de normalización
+# para todos los datos cargados en el sistema Las Marianas-SO.
+# ======================================================================
+
+# Ruta al archivo Excel principal. La ruta es relativa al directorio raíz del proyecto.
+excel_file_path: "data/Base de Datos A y C.xlsm"
+
+# Definición de las hojas de cálculo a cargar.
+# La clave (ej: 'trabajadores') será el alias usado para acceder al DataFrame en el loader.
+sheets:
+  trabajadores:
+    name: 'Trabajadores'
+    header_row: 0
+    unique_key: ['dni']
+    columns:
+      'WorkerID': 'worker_id'
+      'DNI': 'dni'
+      'Nombre': 'nombre'
+      'FechaNacimiento': 'fecha_nacimiento'
+      'Edad': 'edad'
+      'Sexo': 'sexo'
+      'Planta': 'obra'
+      'Área': 'area'
+      'Cargo': 'cargo'
+      'Perfil': 'perfil'
+      'FechaIngreso': 'fecha_ingreso'
+      'Ultimo EMO': 'ultimo_emo'
+      'Tipo de EMO': 'tipo_emo_historial'
+      'EMO Entregado': 'emo_entregado_historial'
+      'Fecha de EMO Entregado': 'fecha_emo_entregado_historial'
+      'Vigencia': 'vigencia'
+      'APTITUD': 'aptitud'
+      'Observaciones': 'observaciones'
+      'Restricciones Generales': 'restricciones'
+      'Programa': 'programa'
+      'Advertencia': 'advertencia'
+      'Tipo Capacitación': 'tipo_capacitacion'
+      'Fecha Capacitación': 'fecha_capacitacion'
+
+  historial_trabajadores:
+    name: 'Historial_Trabajadores'
+    header_row: 0
+    unique_key: ['dni', 'fecha_ingreso']
+    columns:
+      'DNI': 'dni'
+      'Nombre': 'nombre'
+      'Edad': 'edad'
+      'Sexo': 'sexo'
+      'Obra': 'obra'
+      'FechaIngreso': 'fecha_ingreso'
+      'FechaSalida': 'fecha_salida'
+
+  registro_emo:
+    name: 'Registro EMO'
+    header_row: 11  # Fila 12 en Excel (0-indexed)
+    unique_key: ['dni', 'fecha_emo']
+    columns:
+      'N': 'num_registro'
+      'NOMBRE': 'nombre'
+      'DNI': 'dni'
+      'OCUPACION ACTUAL': 'ocupacion'
+      'TIPO DE EMO': 'tipo_emo'
+      'FECHA': 'fecha_emo'
+      'APTITUD': 'aptitud'
+      'ENTREGADO': 'entregado'
+      'FECHA ENTREGA': 'fecha_entrega'
+
+  accidentes:
+    name: 'Accidentes'
+    header_row: 0
+    unique_key: ['accidente_id']
+    columns:
+      'AccidenteID': 'accidente_id'
+      'Nombre': 'nombre'
+      'DNI': 'dni'
+      'Fecha': 'fecha_accidente'
+      'ParteCuerpo': 'parte_cuerpo'
+      'Agente': 'agente'
+      'Diagnóstico': 'diagnostico'
+      'Médico Tratante': 'medico_tratante'
+      'Requiere Cirugía': 'requiere_cirugia'
+      'Clínica': 'clinica'
+      'Declaración_Accidentado': 'declaracion'
+      'Tipo Ausencia': 'tipo_ausencia'
+      'Fecha_Inicio': 'fecha_inicio_ausencia'
+      'Días perdidos': 'dias_perdidos'
+      'Aptitud de Reincorporación': 'aptitud_reincorporacion'
+
+  # --- Hojas adicionales para futura expansión ---
+  # Descomentar y ajustar cuando se necesiten.
+  # atenciones:
+  #   name: 'Atenciones'
+  #   ...
+  # descansos_medicos:
+  #   name: 'Descansos_Medicos'
+  #   ...
+
+# ======================================================================
+# REGLAS DE NORMALIZACIÓN
+# Aplicadas a todas las hojas después de la carga inicial.
+# ======================================================================
+normalization_rules:
+  # Columnas que deben ser tratadas como strings y limpiadas (sin espacios, sin ".0").
+  string_cleanup_columns:
+    - 'dni'
+    - 'worker_id'
+
+  # Columnas que contienen fechas y deben ser parseadas con formato día/mes/año.
+  date_columns:
+    - 'fecha_nacimiento'
+    - 'fecha_ingreso'
+    - 'fecha_salida'
+    - 'ultimo_emo'
+    - 'fecha_emo_entregado_historial'
+    - 'fecha_emo'
+    - 'fecha_entrega'
+    - 'fecha_capacitacion'
+    - 'fecha_accidente'
+    - 'fecha_inicio_ausencia'

@@ -1,0 +1,48 @@
+# ======================================================================
+# CONFIGURACIÓN DEL ORQUESTADOR DE REPORTES
+# Define los reportes disponibles, sus generadores y parámetros.
+# ======================================================================
+
+# Registro de reportes disponibles para el CLI y otros sistemas.
+# La clave (ej: 'informe_emo_mensual') es el ID único del reporte.
+report_registry:
+  informe_emo_mensual:
+    # Módulo y clase que implementan la interfaz del generador de reportes.
+    generator_class: "las_marianas_so.reports.generators.emo_monthly.EMOMonthlyReportGenerator"
+
+    # Nombre descriptivo para mostrar en el CLI.
+    display_name: "Informe Mensual EMO (Apartados A-F)"
+
+    # Descripción para el menú del CLI.
+    description: "Genera el informe EMO mensual en formato .docx y gráficos .png."
+
+    # Parámetros que este reporte requiere del usuario a través del CLI.
+    parameters:
+      - name: "obra"
+        type: "str"
+        prompt: "Seleccione la Obra/Planta"
+        # 'dynamic_options' indica al CLI que debe obtener las opciones desde el loader.
+        dynamic_options:
+          source: "trabajadores"
+          column: "obra"
+      - name: "year"
+        type: "int"
+        prompt: "Ingrese el año del informe (ej: 2023)"
+      - name: "month"
+        type: "int"
+        prompt: "Ingrese el mes del informe (1-12)"
+
+  # --- Futuros Reportes ---
+  # Aquí se pueden registrar nuevos reportes sin modificar el código del CLI.
+  #
+  # informe_accidentes_trimestral:
+  #   generator_class: "las_marianas_so.reports.generators.accidents_quarterly.AccidentsQuarterlyReportGenerator"
+  #   display_name: "Informe Trimestral de Accidentabilidad"
+  #   description: "Analiza la frecuencia y severidad de accidentes."
+  #   parameters:
+  #     - name: "year"
+  #       type: "int"
+  #       prompt: "Ingrese el año del informe"
+  #     - name: "quarter"
+  #       type: "int"
+  #       prompt: "Ingrese el trimestre (1-4)"

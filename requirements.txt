@@ -1,0 +1,16 @@
+# Core data manipulation
+pandas
+openpyxl
+
+# CLI enhancements
+rich
+
+# YAML configuration
+pyyaml
+
+# Word document generation
+python-docx
+
+# Charting library
+matplotlib
+# seaborn # Descomentar si se usan estilos más avanzados

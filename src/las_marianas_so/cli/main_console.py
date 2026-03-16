@@ -1,0 +1,51 @@
+"""
+Router Principal del CLI.
+
+Este módulo contiene el bucle principal de la aplicación de consola,
+permitiendo al usuario navegar entre los diferentes módulos del sistema.
+"""
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Prompt
+
+from las_marianas_so.loader.core import ExcelLoader
+from las_marianas_so.audit.core import run_audit
+from las_marianas_so.cli.sections.audit_ui import display_audit_results
+from las_marianas_so.cli.sections.reports_ui import show_reports_menu
+from las_marianas_so.reports.orchestrator import ReportOrchestrator
+
+def run_console(loader: ExcelLoader, report_orchestrator: ReportOrchestrator):
+    """Inicia el bucle principal del menú interactivo del CLI."""
+    console = Console()
+    
+    while True:
+        console.print(Panel(
+            "[bold]Menú Principal[/bold]\n\n"
+            "1. [cyan]Auditoría de Datos[/cyan] (Faltantes/Duplicados)\n"
+            "2. [green]Generar Reportes[/green]\n"
+            "3. [yellow]Dashboard (próximamente)[/yellow]\n"
+            "4. [blue]Matriz de Riesgos (próximamente)[/blue]\n"
+            "5. [magenta]Modelo Predictivo (próximamente)[/magenta]\n\n"
+            "s. [red]Salir[/red]",
+            title="LAS MARIANAS SO",
+            border_style="bold blue"
+        ))
+        
+        choice = Prompt.ask("Seleccione una opción", choices=["1", "2", "3", "4", "5", "s"], default="s")
+
+        if choice == '1':
+            console.print("\n[bold]Ejecutando auditoría de datos...[/bold]")
+            audit_results = run_audit(loader.get_data())
+            display_audit_results(audit_results)
+        
+        elif choice == '2':
+            show_reports_menu(console, report_orchestrator, loader)
+
+        elif choice in ['3', '4', '5']:
+            console.print("\n[yellow]Este módulo aún no está implementado.[/yellow]\n")
+            
+        elif choice == 's':
+            console.print("\n[bold]Saliendo del sistema. ¡Hasta luego![/bold]\n")
+            break
+        
+        console.print("\n" + "="*50 + "\n")
