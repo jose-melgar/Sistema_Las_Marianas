@@ -62,7 +62,7 @@ class ReportOrchestrator:
             GeneratorClass = _get_generator_class(report_config['generator_class'])
             generator_instance = GeneratorClass(self.loader_data, self.base_output_path)
             
-            return generator_instance.generate(**params)
+            return generator_instance.generate(report_id=report_id, **params)
             
         except (ImportError, AttributeError) as e:
             print(f"Error al cargar la clase del generador para '{report_id}': {e}")

@@ -4,45 +4,72 @@ Interfaz de Usuario para el Módulo de Auditoría.
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
+from rich.prompt import IntPrompt
 
-from las_marianas_so.common.formatting import format_cell
+from las_marianas_so.loader.core import ExcelLoader
+from las_marianas_so.audit.core import run_audit_on_sheet
 
-def display_audit_results(audit_results: dict):
-    """Muestra los resultados de la auditoría en la consola."""
+def show_audit_menu(console: Console, loader: ExcelLoader):
+    """
+    Muestra el menú para seleccionar una hoja y ejecutar la auditoría.
+    """
+    sheet_options = {
+        str(i + 1): alias 
+        for i, alias in enumerate(loader.get_data().keys())
+    }
+    
+    # Crear el texto del menú dinámicamente
+    menu_text = "[bold]Seleccione la hoja que desea auditar:[/bold]\n\n"
+    for num, alias in sheet_options.items():
+        menu_text += f"{num}. [cyan]{alias.replace('_', ' ').title()}[/cyan]\n"
+    
+    console.print(Panel(menu_text, title="Módulo de Auditoría", border_style="bold magenta"))
+
+    # Pedir al usuario que elija una opción
+    choice = IntPrompt.ask(
+        "Ingrese el número de la hoja", 
+        choices=list(sheet_options.keys()),
+        show_choices=False # Ya mostramos las opciones en el panel
+    )
+    
+    selected_alias = sheet_options[str(choice)]
+    selected_df = loader.get_data()[selected_alias]
+
+    console.print(f"\n[bold]Ejecutando auditoría en la hoja '{selected_alias}'...[/bold]")
+    
+    # Ejecutar la auditoría solo para la hoja seleccionada
+    missing_summary = run_audit_on_sheet(selected_df, selected_alias)
+    
+    # Mostrar los resultados
+    display_audit_results(missing_summary, selected_alias)
+
+
+def display_audit_results(missing_summary: dict, sheet_alias: str):
+    """
+    Muestra los resultados de la auditoría en la consola en formato de resumen.
+    """
     console = Console()
-    if not audit_results:
-        console.print(Panel("[bold green]✅ Auditoría completada. No se encontraron problemas de duplicados o faltantes.[/bold green]"))
+
+    if not missing_summary:
+        console.print(Panel(
+            f"[bold green]✅ Auditoría completada en '{sheet_alias}'. No se encontraron valores faltantes.[/bold green]"
+        ))
         return
 
-    console.print(Panel("[bold yellow]⚠️ Se encontraron problemas en la auditoría de datos. Revise los detalles a continuación.[/bold yellow]"))
+    console.print(Panel(
+        f"[bold yellow]⚠️ Se encontraron valores faltantes en la hoja '{sheet_alias}'.[/bold yellow]"
+    ))
 
-    for sheet_alias, issues in audit_results.items():
-        console.print(f"\n[bold magenta]Resultados para la hoja '{sheet_alias}':[/bold magenta]")
+    # Crear la nueva tabla de resumen
+    table = Table(
+        show_header=True, 
+        header_style="bold blue",
+        title=f"Resumen de Valores Faltantes en '{sheet_alias}'"
+    )
+    table.add_column("Columna", style="cyan", no_wrap=True)
+    table.add_column("Cantidad de Registros Faltantes", style="red", justify="right")
 
-        # Mostrar Duplicados
-        if not issues['duplicates'].empty:
-            console.print("\n[yellow]Registros Duplicados Encontrados:[/yellow]")
-            df_dupes = issues['duplicates']
-            
-            table = Table(show_header=True, header_style="bold blue")
-            table.add_column("Fila Excel", style="dim")
-            for col in df_dupes.columns:
-                table.add_column(col)
-            
-            # +2 para la fila de header del excel y el 1-based index
-            header_offset = issues.get('header_row', 0) + 2
-
-            for index, row in df_dupes.iterrows():
-                row_values = [str(index + header_offset)]
-                for col_name in df_dupes.columns:
-                    row_values.append(format_cell(row[col_name], col_name))
-                table.add_row(*row_values)
-            console.print(table)
-
-        # Mostrar Faltantes
-        if issues['missing']:
-            console.print("\n[yellow]Valores Faltantes Encontrados:[/yellow]")
-            header_offset = issues.get('header_row', 0) + 2
-            for col, indices in issues['missing'].items():
-                filas = ", ".join(str(i + header_offset) for i in indices)
-                console.print(f"  - Columna [bold cyan]'{col}'[/bold cyan]: {len(indices)} valores faltantes en filas: [red]{filas}[/red]")
+    for column, count in missing_summary.items():
+        table.add_row(column, str(count))
+        
+    console.print(table)

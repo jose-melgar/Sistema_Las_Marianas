@@ -9,8 +9,8 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 
 from las_marianas_so.loader.core import ExcelLoader
-from las_marianas_so.audit.core import run_audit
-from las_marianas_so.cli.sections.audit_ui import display_audit_results
+# Importamos la nueva función del menú de auditoría
+from las_marianas_so.cli.sections.audit_ui import show_audit_menu
 from las_marianas_so.cli.sections.reports_ui import show_reports_menu
 from las_marianas_so.reports.orchestrator import ReportOrchestrator
 
@@ -21,7 +21,7 @@ def run_console(loader: ExcelLoader, report_orchestrator: ReportOrchestrator):
     while True:
         console.print(Panel(
             "[bold]Menú Principal[/bold]\n\n"
-            "1. [cyan]Auditoría de Datos[/cyan] (Faltantes/Duplicados)\n"
+            "1. [cyan]Auditoría de Datos[/cyan] (Resumen de Faltantes)\n" # Descripción actualizada
             "2. [green]Generar Reportes[/green]\n"
             "3. [yellow]Dashboard (próximamente)[/yellow]\n"
             "4. [blue]Matriz de Riesgos (próximamente)[/blue]\n"
@@ -34,9 +34,8 @@ def run_console(loader: ExcelLoader, report_orchestrator: ReportOrchestrator):
         choice = Prompt.ask("Seleccione una opción", choices=["1", "2", "3", "4", "5", "s"], default="s")
 
         if choice == '1':
-            console.print("\n[bold]Ejecutando auditoría de datos...[/bold]")
-            audit_results = run_audit(loader.get_data())
-            display_audit_results(audit_results)
+            # Llamamos a la nueva función del menú de auditoría
+            show_audit_menu(console, loader)
         
         elif choice == '2':
             show_reports_menu(console, report_orchestrator, loader)
