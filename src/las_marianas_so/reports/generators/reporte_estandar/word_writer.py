@@ -1,6 +1,6 @@
 """
 Utilidades de bajo nivel para manipular documentos Word.
-Adaptación de `word_writer.py` del repositorio `temporal`.
+Versión completa y fiel adaptada del repositorio 'temporal'.
 """
 import re
 import unicodedata
@@ -9,12 +9,23 @@ from typing import Iterable, Optional
 
 from docx import Document
 from docx.oxml import OxmlElement
+from docx.shared import Inches
 from docx.table import Table
 from docx.text.paragraph import Paragraph
-from docx.shared import Inches
+
+def open_template(template_path: Path) -> Document:
+    """Abre un documento de plantilla desde una ruta."""
+    if not template_path.exists():
+        raise FileNotFoundError(f"No existe la plantilla en la ruta: {template_path}")
+    return Document(str(template_path))
+
+def save(doc: Document, report_path: Path) -> None:
+    """Guarda un documento en la ruta de salida, creando directorios si es necesario."""
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    doc.save(str(report_path))
 
 def _norm_text(s: str) -> str:
-    """Normaliza texto para búsqueda (ignora acentos, mayúsculas, etc.)."""
+    """Normaliza texto para búsqueda (ignora acentos, mayúsculas, espacios extra)."""
     s = str(s or "").replace("\u00a0", " ").strip().casefold()
     s = "".join(ch for ch in unicodedata.normalize("NFD", s) if unicodedata.category(ch) != "Mn")
     return re.sub(r"\s+", " ", s)
@@ -70,13 +81,14 @@ def insert_picture_after_paragraph(anchor: Paragraph, image_path: Path, width_in
     return _insert_paragraph_after(p)
 
 def insert_table_after_paragraph(doc: Document, anchor: Paragraph, headers: list, rows: list) -> Table:
-    """Inserta una tabla después de un párrafo ancla."""
-    # Crea la tabla al final del documento y luego la mueve a su posición
+    """Inserta una tabla con estilo después de un párrafo ancla."""
     table = doc.add_table(rows=1, cols=len(headers), style="Table Grid")
     
     # Rellenar tabla
+    hdr_cells = table.rows[0].cells
     for i, h in enumerate(headers):
-        table.cell(0, i).text = str(h)
+        hdr_cells[i].text = str(h)
+    
     for row_data in rows:
         row_cells = table.add_row().cells
         for i, cell_data in enumerate(row_data):
@@ -84,7 +96,5 @@ def insert_table_after_paragraph(doc: Document, anchor: Paragraph, headers: list
 
     # Mover la tabla justo después del párrafo ancla
     anchor._p.addnext(table._tbl)
-    # Insertar un párrafo vacío después de la tabla para espaciar
-    _insert_paragraph_after(anchor.next_sibling)
-    
+    _insert_paragraph_after(anchor.next_sibling) # Párrafo de espacio
     return table
