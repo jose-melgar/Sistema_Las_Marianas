@@ -5,13 +5,11 @@ from pathlib import Path
 from docx import Document
 from rich.console import Console
 
-# --- NUEVA IMPORTACIÓN DEL MANEJADOR ---
 from .handlers import standard_report_handler
 
 console = Console()
 
 def _find_text_in_doc(doc: Document, text_to_find: str) -> bool:
-    """Busca un texto específico dentro de todo el documento Word."""
     text_to_find_lower = text_to_find.lower()
     for p in doc.paragraphs:
         if text_to_find_lower in p.text.lower(): return True
@@ -22,15 +20,15 @@ def _find_text_in_doc(doc: Document, text_to_find: str) -> bool:
                     if text_to_find_lower in p.text.lower(): return True
     return False
 
-# --- El nombre de la función se mantiene igual para no romper la UI ---
-def generate_standard_report(obra: str, year: int, month: int, report_type: str):
-    """
-    Punto de entrada que valida y enruta al manejador de reporte apropiado.
-    """
+# El nombre de la función se mantiene, pero ahora recibe 'data' desde la UI
+def generate_standard_report(data: dict, obra: str, year: int, month: int, report_type: str):
     base_path = Path(__file__).resolve().parent.parent.parent.parent
     template_path = base_path / "templates/informes/prueba.docx"
     output_path_dir = base_path / "outputs"
+    temp_dir = output_path_dir / "temp_charts" # Carpeta para gráficos temporales
+    
     output_path_dir.mkdir(exist_ok=True)
+    temp_dir.mkdir(exist_ok=True)
     
     if not template_path.exists():
         console.print(f"[bold red]Error: No se encuentra la plantilla en:[/bold red] {template_path}")
@@ -44,21 +42,15 @@ def generate_standard_report(obra: str, year: int, month: int, report_type: str)
         
     console.print(f"[bold green]Validación de plantilla exitosa.[/bold green]")
     
-    # --- LÓGICA DE ENRUTAMIENTO ---
-    # Decide a qué manejador llamar basado en el 'report_type'.
+    # Enrutamiento: decide a qué manejador llamar
     if report_type == "Reporte Estandar":
-        # Llama al manejador del reporte estándar y le pasa el documento
-        standard_report_handler.run(doc)
+        # Ahora pasamos todo el contexto necesario al manejador
+        standard_report_handler.run(doc, data, obra, year, month, temp_dir)
     
     elif report_type == "Reporte de Vulnerabilidad":
         console.print("[yellow]El 'Reporte de Vulnerabilidad' aún no está implementado.[/yellow]")
-        # Aquí se llamaría a 'vulnerability_report_handler.run(doc)' en el futuro.
-    else:
-        console.print(f"[bold red]Error: Tipo de reporte '{report_type}' desconocido.[/bold red]")
-        return
     
-    # --- GUARDADO FINAL ---
-    # Después de que el manejador ha modificado el 'doc', lo guardamos.
+    # Guardado final
     output_filename = f"Reporte_{obra.replace(' ', '_')}_{year}_{month:02d}.docx"
     output_path = output_path_dir / output_filename
     doc.save(output_path)

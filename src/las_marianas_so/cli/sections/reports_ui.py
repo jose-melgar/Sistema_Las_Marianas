@@ -6,12 +6,10 @@ from rich.panel import Panel
 from rich.prompt import IntPrompt, Prompt
 
 from las_marianas_so.loader.core import ExcelLoader
-
-# --- CORRECCIÓN DE IMPORTACIÓN: Usamos el nombre unificado ---
 from las_marianas_so.reports.core import generate_standard_report
 
 def get_unique_obras(loader: ExcelLoader) -> list[str]:
-    """Obtiene la lista de obras únicas desde la hoja 'trabajadores'."""
+    # ... (sin cambios) ...
     try:
         df_trabajadores = loader.get_data()['trabajadores']
         obras = df_trabajadores['obra'].dropna().unique()
@@ -20,9 +18,7 @@ def get_unique_obras(loader: ExcelLoader) -> list[str]:
         return []
 
 def show_reports_menu(console: Console, loader: ExcelLoader):
-    """
-    Muestra el menú para recopilar el contexto necesario para un reporte.
-    """
+    # ... (toda la recopilación de datos es igual) ...
     console.print(Panel(
         "Asistente de Generación de Reportes",
         title="Módulo de Reportes",
@@ -65,8 +61,9 @@ def show_reports_menu(console: Console, loader: ExcelLoader):
         f" - Tipo: [yellow]{selected_report_type}[/yellow]"
     )
     
-    # --- 4. LLAMADA AL CORE (con el nombre corregido y unificado) ---
+    # --- 4. LLAMADA AL CORE (Ahora pasamos el diccionario de datos) ---
     generate_standard_report(
+        data=loader.get_data(), # <--- AÑADIDO
         obra=selected_obra,
         year=selected_year,
         month=selected_month,
