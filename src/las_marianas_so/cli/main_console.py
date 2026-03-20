@@ -8,15 +8,9 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 
 from las_marianas_so.loader.core import ExcelLoader
-# Importamos la función de auditoría
 from las_marianas_so.cli.sections.audit_ui import show_audit_menu
+from las_marianas_so.cli.sections.reports_ui import show_reports_menu
 
-# --- ELIMINADO: Se quitan las importaciones del sistema de reportes ---
-# from las_marianas_so.cli.sections.reports_ui import show_reports_menu
-# from las_marianas_so.reports.orchestrator import ReportOrchestrator
-
-
-# --- FIRMA ACTUALIZADA: Ya no se necesita el 'report_orchestrator' ---
 def run_console(loader: ExcelLoader):
     """Inicia el bucle principal del menú interactivo del CLI."""
     console = Console()
@@ -24,8 +18,8 @@ def run_console(loader: ExcelLoader):
     while True:
         console.print(Panel(
             "[bold]Menú Principal[/bold]\n\n"
-            "1. [cyan]Auditoría de Datos[/cyan] (Resumen de Faltantes)\n"
-            "2. [green]Generar Reportes (deshabilitado)[/green]\n" # Texto actualizado
+            "1. [cyan]Auditoría de Datos[/cyan]\n"
+            "2. [green]Generar Reportes[/green]\n"
             "3. [yellow]Dashboard (próximamente)[/yellow]\n"
             "4. [blue]Matriz de Riesgos (próximamente)[/blue]\n"
             "5. [magenta]Modelo Predictivo (próximamente)[/magenta]\n\n"
@@ -40,9 +34,7 @@ def run_console(loader: ExcelLoader):
             show_audit_menu(console, loader)
         
         elif choice == '2':
-            # --- LÓGICA ACTUALIZADA: Se usa un placeholder ---
-            console.print("\n[yellow]El módulo de generación de reportes está siendo reconstruido y se encuentra deshabilitado temporalmente.[/yellow]\n")
-            input("Presione Enter para continuar...")
+            show_reports_menu(console, loader)
 
 
         elif choice in ['3', '4', '5']:

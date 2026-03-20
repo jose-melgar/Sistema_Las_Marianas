@@ -1,56 +1,76 @@
 """
-Interfaz de Usuario para el Módulo de Reportes.
+Interfaz de Usuario para el Módulo de Generación de Reportes.
 """
 from rich.console import Console
-from rich.prompt import Prompt, IntPrompt
-from rich.table import Table
+from rich.panel import Panel
+from rich.prompt import IntPrompt, Prompt
 
-from las_marianas_so.reports.orchestrator import ReportOrchestrator
 from las_marianas_so.loader.core import ExcelLoader
 
-def show_reports_menu(console: Console, orchestrator: ReportOrchestrator, loader: ExcelLoader):
-    """Muestra el menú para seleccionar y generar reportes."""
-    available_reports = orchestrator.list_available_reports()
-    if not available_reports:
-        console.print("[bold red]No hay reportes configurados.[/bold red]")
+# --- CORRECCIÓN DE IMPORTACIÓN: Usamos el nombre unificado ---
+from las_marianas_so.reports.core import generate_standard_report
+
+def get_unique_obras(loader: ExcelLoader) -> list[str]:
+    """Obtiene la lista de obras únicas desde la hoja 'trabajadores'."""
+    try:
+        df_trabajadores = loader.get_data()['trabajadores']
+        obras = df_trabajadores['obra'].dropna().unique()
+        return sorted([str(obra) for obra in obras])
+    except KeyError:
+        return []
+
+def show_reports_menu(console: Console, loader: ExcelLoader):
+    """
+    Muestra el menú para recopilar el contexto necesario para un reporte.
+    """
+    console.print(Panel(
+        "Asistente de Generación de Reportes",
+        title="Módulo de Reportes",
+        border_style="bold green"
+    ))
+
+    # --- 1. Seleccionar Obra ---
+    obras = get_unique_obras(loader)
+    if not obras:
+        console.print("[bold red]No se pudieron cargar las obras desde la hoja de trabajadores.[/bold red]")
         return
-
-    table = Table(title="Reportes Disponibles", show_header=True, header_style="bold green")
-    table.add_column("ID", style="cyan")
-    table.add_column("Nombre del Reporte")
-    table.add_column("Descripción")
-
-    for report_id, config in available_reports.items():
-        table.add_row(report_id, config['display_name'], config['description'])
-    
-    console.print(table)
-    
-    report_id = Prompt.ask("Ingrese el ID del reporte que desea generar", choices=list(available_reports.keys()))
-    
-    report_config = available_reports[report_id]
-    params = {}
-    
-    # Recolectar parámetros dinámicamente
-    for param_info in report_config.get('parameters', []):
-        param_name = param_info['name']
-        prompt_text = param_info['prompt']
         
-        # Lógica para obtener opciones dinámicas (ej: lista de obras)
-        if 'dynamic_options' in param_info:
-            options_config = param_info['dynamic_options']
-            df_source_alias = options_config['source']
-            column = options_config['column']
-            
-            df = loader.data.get(df_source_alias)
-            if df is not None and column in df.columns:
-                options = sorted(df[column].unique().tolist())
-                params[param_name] = Prompt.ask(prompt_text, choices=options)
-            else:
-                console.print(f"[red]Error: No se pudieron cargar las opciones para '{param_name}'[/red]")
-                return
-        elif param_info['type'] == 'int':
-            params[param_name] = IntPrompt.ask(prompt_text)
-        else: # asume 'str'
-            params[param_name] = Prompt.ask(prompt_text)
+    obra_options = {str(i + 1): obra for i, obra in enumerate(obras)}
+    menu_text = "[bold]Seleccione la Obra:[/bold]\n\n"
+    for num, obra in obra_options.items():
+        menu_text += f"{num}. [cyan]{obra}[/cyan]\n"
+    console.print(Panel(menu_text))
+    obra_choice = IntPrompt.ask("Ingrese el número de la obra", choices=list(obra_options.keys()))
+    selected_obra = obra_options[str(obra_choice)]
 
-    orchestrator.run_report(report_id, params)
+    # --- 2. Ingresar Año y Mes ---
+    current_year = 2024
+    selected_year = IntPrompt.ask("Ingrese el año del reporte", default=current_year)
+    selected_month = IntPrompt.ask("Ingrese el mes del reporte (1-12)", choices=[str(i) for i in range(1, 13)])
+    
+    # --- 3. Seleccionar Tipo de Reporte ---
+    report_types = {
+        '1': "Reporte Estandar",
+        '2': "Reporte de Vulnerabilidad"
+    }
+    menu_text = "[bold]Seleccione el Tipo de Reporte:[/bold]\n\n1. Reporte Estandar\n2. Reporte de Vulnerabilidad"
+    console.print(Panel(menu_text))
+    report_choice = Prompt.ask("Ingrese el número del tipo de reporte", choices=['1', '2'])
+    selected_report_type = report_types[report_choice]
+    
+    console.print(
+        f"\n[bold]Contexto recopilado:[/bold]\n"
+        f" - Obra: [yellow]{selected_obra}[/yellow]\n"
+        f" - Período: [yellow]{selected_month:02d}/{selected_year}[/yellow]\n"
+        f" - Tipo: [yellow]{selected_report_type}[/yellow]"
+    )
+    
+    # --- 4. LLAMADA AL CORE (con el nombre corregido y unificado) ---
+    generate_standard_report(
+        obra=selected_obra,
+        year=selected_year,
+        month=selected_month,
+        report_type=selected_report_type
+    )
+
+    input("\nPresione Enter para volver al menú principal...")

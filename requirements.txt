@@ -13,4 +13,3 @@ python-docx
 
 # Charting library
 matplotlib
-# seaborn # Descomentar si se usan estilos más avanzados
