@@ -13,3 +13,6 @@ python-docx
 
 # Charting library
 matplotlib
+
+fastapi
+uvicorn[standard]
