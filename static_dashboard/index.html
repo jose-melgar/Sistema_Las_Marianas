@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -9,6 +9,7 @@
 </head>
 <body>
   <div class="layout">
+    <!-- Sidebar: filtros -->
     <aside class="sidebar card">
       <h3>Filtros</h3>
       <label>Obra</label>
@@ -22,35 +23,47 @@
 
     <main class="main">
       <section class="kpis" id="kpis"></section>
-
       <section class="bento">
         <div class="card panel">
           <h4>Distribución por Sexo</h4>
           <div id="chartA" class="chart"></div>
           <p id="sumA"></p>
         </div>
-
         <div class="card panel">
           <h4>Grupo Etario</h4>
           <div id="chartB" class="chart"></div>
           <p id="sumB"></p>
         </div>
-
         <div class="card panel">
           <h4>Status EMO - Cobertura</h4>
           <div id="chartC1" class="chart"></div>
           <p id="sumC1"></p>
         </div>
-
         <div class="card panel">
           <h4>Status EMO - Entrega del Mes</h4>
           <div id="chartC2" class="chart"></div>
           <p id="sumC2"></p>
         </div>
+        <div class="card panel">
+          <h4>Perfiles de EMO</h4>
+          <div id="chartD" class="chart"></div>
+          <p id="sumD"></p>
+        </div>
+        <div class="card panel wide-e">
+          <h4>Vigencia de EMOs</h4>
+          <div id="chartE" class="chart chartE"></div>
+          <p id="sumE"></p>
+        </div>
+
+        <!-- Fila de Aptitud de EMO, ocupa todo el ancho (4 columnas) -->
+        <div class="card panel wide-f">
+          <h4>Aptitud de EMO</h4>
+          <div id="chartF" class="chart chartF"></div>
+          <p id="sumF"></p>
+        </div>
       </section>
     </main>
   </div>
-
   <script src="./main.js"></script>
 </body>
 </html>
