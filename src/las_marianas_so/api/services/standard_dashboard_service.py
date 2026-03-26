@@ -48,48 +48,19 @@ def build_dashboard(data: dict, obra: str, year: int, month: int):
     e = stats.get("apartado_e")
     chart_e = _series_to_chart(e) if isinstance(e, pd.Series) else _empty_chart()
 
-    # APARTADO F (Aptitud EMO, dona triple, con segmentación explícita y orden correcto)
+    # APARTADO F (Aptitud EMO, dona triple)
     f = stats.get("apartado_f")
     order = ["APTO", "CON RESTRICCIONES", "NO APTO", "OBSERVADO"]
     chart_f = {"labels_f": [], "values_f": [], "labels_total": [], "values_total": [], "labels_m": [], "values_m": []}
 
-    if isinstance(f, pd.Series):
-        # Segmentación de datos por F y M desde df_activos
-        if "sexo" in df_activos.columns and "aptitud" in df_activos.columns:
-            df_activos["_sexo_norm"] = df_activos["sexo"].apply(
-                lambda v: str(v).strip().upper() if pd.notna(v) else ""
-            )
-            df_activos["_apt_norm"] = df_activos["aptitud"].apply(
-                lambda v: str(v).strip().upper() if pd.notna(v) else ""
-            )
-
-            counts_f = (
-                df_activos[df_activos["_sexo_norm"] == "F"]["_apt_norm"]
-                .value_counts()
-                .reindex(order)
-                .fillna(0)
-                .astype(int)
-            )
-            counts_m = (
-                df_activos[df_activos["_sexo_norm"] == "M"]["_apt_norm"]
-                .value_counts()
-                .reindex(order)
-                .fillna(0)
-                .astype(int)
-            )
-            counts_total = f.reindex(order).fillna(0).astype(int)
-        else:
-            # Si faltan columnas para segmentar, genera datos "vacíos"
-            counts_f = pd.Series([0]*len(order), index=order, dtype=int)
-            counts_m = pd.Series([0]*len(order), index=order, dtype=int)
-            counts_total = pd.Series([0]*len(order), index=order, dtype=int)
-
-        chart_f["labels_f"], chart_f["values_f"] = _get_labels_and_values(counts_f, order)
-        chart_f["labels_m"], chart_f["values_m"] = _get_labels_and_values(counts_m, order)
-        chart_f["labels_total"], chart_f["values_total"] = _get_labels_and_values(counts_total, order)
-    else:
-        # Si `stats["apartado_f"]` es inválido o no definido, mantenemos datos vacíos
-        chart_f["labels_total"], chart_f["values_total"] = [], []
+    # Ahora 'f' es un diccionario proveído directamente por emo_domain.py
+    if isinstance(f, dict):
+        chart_f["labels_total"], chart_f["values_total"] = _get_labels_and_values(f.get("counts_total"), order)
+        chart_f["labels_f"], chart_f["values_f"] = _get_labels_and_values(f.get("counts_f"), order)
+        chart_f["labels_m"], chart_f["values_m"] = _get_labels_and_values(f.get("counts_m"), order)
+    elif isinstance(f, pd.Series):
+        # Fallback de seguridad por si en algún momento vuelve a ser una Serie
+        chart_f["labels_total"], chart_f["values_total"] = _get_labels_and_values(f, order)
 
     return {
         "meta": {"report_type": "standard", "obra": obra, "year": year, "month": month},

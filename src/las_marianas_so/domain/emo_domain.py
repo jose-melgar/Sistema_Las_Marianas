@@ -73,6 +73,48 @@ def calculate_stats_E_emo_validity(df_active: pd.DataFrame) -> pd.Series:
     )
     return df_active['vigencia_emo'].value_counts()
 
-def calculate_stats_F_aptitude(df_active: pd.DataFrame) -> pd.Series:
-    """Calcula la distribución de aptitud (Apartado F)."""
-    return df_active['aptitud'].value_counts()
+def calculate_stats_F_aptitude(df_active: pd.DataFrame) -> dict:
+    """Calcula la distribución de aptitud (Apartado F) segmentado por sexo y con alias normalizados."""
+    order = ["APTO", "CON RESTRICCIONES", "NO APTO", "OBSERVADO"]
+    alias_map = {
+        "APTO CON RESTRICCIÓN": "CON RESTRICCIONES",
+        "APTO CON RESTRICCION": "CON RESTRICCIONES",
+        "CON RESTRICCION": "CON RESTRICCIONES",
+        "CON RESTRICCIONES": "CON RESTRICCIONES",
+        "NO APTO": "NO APTO",
+        "OBSERVADO": "OBSERVADO",
+        "APTO": "APTO",
+    }
+    
+    # Si no hay datos, devolver diccionarios con ceros
+    if 'aptitud' not in df_active.columns or df_active.empty:
+        empty_s = pd.Series([0]*len(order), index=order, dtype=int)
+        return {"counts_total": empty_s, "counts_f": empty_s, "counts_m": empty_s}
+
+    df = df_active.copy()
+    
+    # 1. Normalizar la columna aptitud para TODO el DataFrame
+    df["_apt_norm"] = df["aptitud"].apply(
+        lambda v: str(v).strip().upper() if pd.notna(v) else ""
+    ).replace(alias_map)
+    
+    # 2. Calcular el total usando la data ya limpia
+    counts_total = df["_apt_norm"].value_counts().reindex(order).fillna(0).astype(int)
+    
+    # 3. Calcular la segmentación por sexo
+    if "sexo" in df.columns:
+        df["_sexo_norm"] = df["sexo"].apply(
+            lambda v: str(v).strip().upper() if pd.notna(v) else ""
+        )
+        counts_f = df[df["_sexo_norm"] == "F"]["_apt_norm"].value_counts().reindex(order).fillna(0).astype(int)
+        counts_m = df[df["_sexo_norm"] == "M"]["_apt_norm"].value_counts().reindex(order).fillna(0).astype(int)
+    else:
+        empty_s = pd.Series([0]*len(order), index=order, dtype=int)
+        counts_f, counts_m = empty_s, empty_s
+        
+    # Retornar el diccionario completo
+    return {
+        "counts_total": counts_total,
+        "counts_f": counts_f,
+        "counts_m": counts_m
+    }

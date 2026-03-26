@@ -45,6 +45,7 @@ function donutOption(title, labels, values) {
     series: [{
       type: "pie",
       radius: ["45%", "70%"],
+      label: { show: false },
       data
     }]
   };
