@@ -1,12 +1,101 @@
-body { margin: 0; font-family: Arial, sans-serif; background: #8fb6e8; }
-.layout { display: grid; grid-template-columns: 260px 1fr; gap: 12px; padding: 12px; }
-.card { background: #9ec2ef; border-radius: 16px; border: 1px solid #3d5f87; padding: 10px; }
-.sidebar { display: flex; flex-direction: column; gap: 8px; }
-.main { display: flex; flex-direction: column; gap: 12px; }
-.kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
-.kpi { background: #9ec2ef; border: 1px solid #3d5f87; border-radius: 14px; padding: 8px; text-align: center; }
-.bento { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.panel h4 { margin: 0 0 8px 0; }
-.chart { width: 100%; height: 280px; }
-p { font-size: 12px; }
-button { cursor: pointer; padding: 8px; border-radius: 8px; border: 1px solid #345; }
+/* General */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #8fb6e8;
+}
+
+/* Layout principal: Sidebar y área principal */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* Sidebar/Filtros */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Tarjetas/KPIs */
+.card {
+  background: #9ec2ef;
+  border-radius: 16px;
+  border: 1px solid #3d5f87;
+  padding: 10px;
+}
+
+/* Área principal */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* KPIs */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.kpi {
+  background: #9ec2ef;
+  border: 1px solid #3d5f87;
+  border-radius: 14px;
+  padding: 8px;
+  text-align: center;
+}
+
+/* Paneles de gráficos (bento) */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 12px;
+}
+.panel h4 {
+  margin: 0 0 8px 0;
+}
+
+/* Gráficos de las tarjetas */
+.chart {
+  width: 100%;
+  height: 280px;
+}
+p {
+  font-size: 12px;
+}
+
+/* Ampliar panel de Vigencia de EMOs */
+.bento .wide-e {
+  grid-column: span 2;
+}
+
+/* Panel 'Aptitud de EMO', ocupa fila completa y es más alto/ancho */
+.bento .wide-f {
+  grid-column: 1 / span 4;
+}
+.chartE {
+  min-width: 420px;
+  height: 310px !important;
+}
+.chartF {
+  min-width: 1080px;  /* ¡ajusta a tu pantalla! */
+  width: 100%;
+  height: 410px !important;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Botón */
+button {
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #345;
+}
