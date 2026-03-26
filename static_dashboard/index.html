@@ -1,69 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - Las Marianas</title>
-  <link rel="stylesheet" href="./styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Las Marianas</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="layout">
-    <!-- Sidebar: filtros -->
-    <aside class="sidebar card">
-      <h3>Filtros</h3>
-      <label>Obra</label>
-      <select id="obraSelect"></select>
-      <label>Año</label>
-      <input id="yearInput" type="number" value="2026" />
-      <label>Mes</label>
-      <input id="monthInput" type="number" min="1" max="12" value="2" />
-      <button id="btnLoad">Cargar</button>
-    </aside>
+    <div class="app-container">
+        <aside class="sidebar left-sidebar">
+            <div class="sidebar-header">
+                <h2>Filtros</h2>
+            </div>
+            <div class="sidebar-content">
+                <div class="filter-group">
+                    <label for="obraSelect">Obra / Proyecto</label>
+                    <select id="obraSelect"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="yearInput">Año</label>
+                    <input type="number" id="yearInput" value="2026">
+                </div>
+                <div class="filter-group">
+                    <label for="monthInput">Mes</label>
+                    <input type="number" id="monthInput" value="2" min="1" max="12">
+                </div>
+                <button id="btnLoad" class="action-btn">Actualizar Gráficos</button>
+            </div>
+            <div class="sidebar-footer">
+                <p>Configuración de datos</p>
+            </div>
+        </aside>
 
-    <main class="main">
-      <section class="kpis" id="kpis"></section>
-      <section class="bento">
-        <div class="card panel">
-          <h4>Distribución por Sexo</h4>
-          <div id="chartA" class="chart"></div>
-          <p id="sumA"></p>
-        </div>
-        <div class="card panel">
-          <h4>Grupo Etario</h4>
-          <div id="chartB" class="chart"></div>
-          <p id="sumB"></p>
-        </div>
-        <div class="card panel">
-          <h4>Status EMO - Cobertura</h4>
-          <div id="chartC1" class="chart"></div>
-          <p id="sumC1"></p>
-        </div>
-        <div class="card panel">
-          <h4>Status EMO - Entrega del Mes</h4>
-          <div id="chartC2" class="chart"></div>
-          <p id="sumC2"></p>
-        </div>
-        <div class="card panel">
-          <h4>Perfiles de EMO</h4>
-          <div id="chartD" class="chart"></div>
-          <p id="sumD"></p>
-        </div>
-        <div class="card panel wide-e">
-          <h4>Vigencia de EMOs</h4>
-          <div id="chartE" class="chart chartE"></div>
-          <p id="sumE"></p>
-        </div>
+        <main class="main-content">
+            <header class="header">
+                <h1>Sistema Las Marianas: <span id="currentTitle">Dashboard Estándar</span></h1>
+            </header>
 
-        <!-- Fila de Aptitud de EMO, ocupa todo el ancho (4 columnas) -->
-        <div class="card panel wide-f">
-          <h4>Aptitud de EMO</h4>
-          <div id="chartF" class="chart chartF"></div>
-          <p id="sumF"></p>
-        </div>
-      </section>
-    </main>
-  </div>
-  <script src="./main.js"></script>
+            <div id="kpis" class="kpi-container">
+                </div>
+
+            <div id="dashboardView" class="dashboard-grid">
+                <div class="chart-card">
+                    <h3>A. Perfil Epidemiológico</h3>
+                    <div id="chartA" style="height: 350px;"></div>
+                    <p id="sumA" class="summary"></p>
+                </div>
+                <div class="chart-card">
+                    <h3>B. Grupos Etarios</h3>
+                    <div id="chartB" style="height: 350px;"></div>
+                    <p id="sumB" class="summary"></p>
+                </div>
+                <div class="chart-card">
+                    <h3>C1. Cobertura EMO</h3>
+                    <div id="chartC1" style="height: 350px;"></div>
+                    <p id="sumC1" class="summary"></p>
+                </div>
+                <div class="chart-card">
+                    <h3>C2. Entrega del Mes</h3>
+                    <div id="chartC2" style="height: 350px;"></div>
+                    <p id="sumC2" class="summary"></p>
+                </div>
+                <div class="chart-card">
+                    <h3>D. Perfiles de EMO</h3>
+                    <div id="chartD" style="height: 350px;"></div>
+                    <p id="sumD" class="summary"></p>
+                </div>
+                <div class="chart-card">
+                    <h3>E. Vigencia de EMOs</h3>
+                    <div id="chartE" style="height: 350px;"></div>
+                    <p id="sumE" class="summary"></p>
+                </div>
+
+                <div class="chartF-card">
+                    <h3>F. Aptitud EMO (General y por Sexo)</h3>
+                    <div id="chartF" style="height: 350px;"></div> <p id="sumF" class="summary"></p>
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar right-sidebar">
+            <div class="sidebar-header">
+                <h2>Vistas</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-type="standard">
+                    <span class="btn-number">1</span>
+                    <span class="btn-text">Dashboard Estándar</span>
+                </button>
+                <button class="nav-btn" data-type="plan_vigilancia">
+                    <span class="btn-number">2</span>
+                    <span class="btn-text">Plan de Vigilancia</span>
+                </button>
+                <button class="nav-btn" data-type="accidentes">
+                    <span class="btn-number">3</span>
+                    <span class="btn-text">Reporte de Accidentes</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>v1.3.0</p>
+            </div>
+        </aside>
+    </div>
+    <script src="main.js"></script>
 </body>
 </html>
